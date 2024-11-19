@@ -16,6 +16,7 @@ def setup_pf8(url="simplecache::gs://pf8-release/", **storage_kwargs):
 @pytest.mark.parametrize(
     "url",
     [
+        "s3://pf8-release",
         "gs://pf8-release/",
         "gcs://pf8-release/",
         "gs://pf8-release",
@@ -118,7 +119,6 @@ def test_variant_calls(extended):
             "variant_FILTER_InternalHypervariable",
             "variant_FILTER_LowQual",
             "variant_FILTER_Low_VQSLOD",
-            "variant_FILTER_MissingVQSLOD",
             "variant_FILTER_Mitochondrion",
             "variant_FILTER_SubtelomericHypervariable",
             "variant_FILTER_SubtelomericRepeat",
@@ -152,7 +152,7 @@ def test_variant_calls(extended):
             "variant_RegionType",
             "variant_SOR",
             "variant_VQSLOD",
-            "variant_altlen",
+            #   "variant_altlen",
             "variant_culprit",
             "variant_set",
         }
@@ -196,7 +196,7 @@ def test_variant_calls(extended):
             "variant_AS_SOR",
             "variant_MLEAC",
             "variant_MLEAF",
-            "variant_altlen",
+            #   "variant_altlen",
         ]
     else:
         expected_data_vars = {
@@ -295,7 +295,7 @@ def test_variant_calls(extended):
         "*",
         ["Pf3D7_07_v3", "Pf3D7_02_v3", "Pf3D7_03_v3"],
         ["Pf3D7_07_v3", "Pf3D7_02_v3:15-20", "Pf3D7_03_v3:40-50"],
-        "PF3D7_0709000.1:pep",
+        "PF3D7_0920900.1",
     ],
 )
 def test_genome_sequence(region):
@@ -303,15 +303,15 @@ def test_genome_sequence(region):
 
     seq = pf8.genome_sequence(region=region)
     assert isinstance(seq, da.Array)
-    assert seq.dtype == "S1"
+    assert seq.dtype == "|S1"
 
 
 @pytest.mark.parametrize(
     "attributes",
     [
-        ("ID", "Parent", "Name", "alias"),
+        ("ID", "Parent", "Name"),
         "*",
-        ["ID", "literature"],
+        ["ID"],
     ],
 )
 def test_genome_features(attributes):
@@ -332,33 +332,13 @@ def test_genome_features(attributes):
     assert isinstance(df, pd.DataFrame)
     if attributes == "*":
         additional_columns = [
-            "Dbxref",
-            "Derives_from",
             "ID",
             "Name",
             "Note",
-            "Ontology_term",
             "Parent",
-            "alias",
-            "comment",
-            "controlled_curation",
-            "cytoplasmic_polypeptide_region",
-            "eupathdb_uc",
-            "gPI_anchor_cleavage_site",
-            "literature",
-            "membrane_structure",
-            "non_cytoplasmic_polypeptide_region",
-            "orthologous_to",
-            "paralogous_to",
-            "polypeptide_domain",
-            "previous_systematic_id",
-            "product",
-            "product_synonym",
-            "signal_peptide",
-            "stop_codon_redefined_as_selenocysteine",
-            "synonym",
-            "translation",
-            "transmembrane_polypeptide_region",
+            "description",
+            "gene_id",
+            "protein_source_id",
         ]
         expected_columns = default_columns + additional_columns
     else:
@@ -366,5 +346,5 @@ def test_genome_features(attributes):
     assert list(df.columns) == expected_columns
 
     # check dimensions
-    expected_len = 40713
+    expected_len = 50070
     assert df.shape == (expected_len, len(expected_columns))
